@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, Heart, Linkedin, Twitter } from "lucide-react";
+import { Github, Heart, Linkedin, Twitter, Star } from "lucide-react";
 import Logo from "./Logo";
 
 export default function Footer() {
@@ -40,6 +40,16 @@ export default function Footer() {
             >
               <Github className="w-4 h-4" />
               <span>GitHub</span>
+            </a>
+
+            <a
+              href="https://github.com/JigyasuRajput/GSoC-spy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-3 py-1.5 rounded-md transition-all duration-300 hover:shadow-md"
+            >
+              <Star className="w-4 h-4 fill-white" />
+              <span className="text-sm font-medium">Star the Project</span>
             </a>
           </div>
         </div>

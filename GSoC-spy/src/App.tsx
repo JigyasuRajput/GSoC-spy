@@ -14,8 +14,8 @@ import {
   BarChart2,
   ChevronDown,
   ChevronUp,
-  Code,
-  Shield, // Add Shield icon
+  Shield,
+  Star, // Star icon for the button
 } from "lucide-react";
 import {
   fetchRepoStats,
@@ -109,10 +109,13 @@ function App() {
               href="https://github.com/JigyasuRajput/GSoC-spy"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-3 py-1.5 rounded-md transition-all duration-300 hover:shadow-md"
             >
-              <Code className="w-4 h-4" />
-              <span className="text-sm font-medium">Source</span>
+              <Star className="w-4 h-4 fill-white" />
+              <span className="text-sm font-medium hidden xs:inline">
+                Star on GitHub
+              </span>
+              <span className="text-sm font-medium xs:hidden">Star</span>
             </a>
             <button
               onClick={() => setDarkMode(!darkMode)}

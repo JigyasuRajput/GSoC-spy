@@ -4,6 +4,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      screens: {
+        'xs': '475px', // Add extra small screen breakpoint for better responsiveness
+      },
       animation: {
         'fadeIn': 'fadeIn 0.3s ease-in-out',
         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
