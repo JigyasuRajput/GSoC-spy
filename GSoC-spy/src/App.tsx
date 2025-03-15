@@ -39,10 +39,13 @@ function App() {
   const [loadingUser, setLoadingUser] = useState(false);
   const [showPRs, setShowPRs] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved
-      ? JSON.parse(saved)
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Check for saved preference first
+    const savedMode = localStorage.getItem("darkMode");
+    if (savedMode !== null) {
+      return JSON.parse(savedMode);
+    }
+    // Otherwise default to true (dark mode)
+    return true;
   });
   const [loadingProgress, setLoadingProgress] = useState("");
 
