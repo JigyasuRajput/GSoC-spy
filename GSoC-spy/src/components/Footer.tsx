@@ -13,7 +13,7 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-8 text-sm">
             <a
-              href="https://www.linkedin.com/feed/"
+              href="https://www.linkedin.com/in/jigyasu-rajput-218657284/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 hover:scale-105"
@@ -33,7 +33,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://github.com/your-username/gsoc-spy"
+              href="https://github.com/JigyasuRajput"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 hover:scale-105"

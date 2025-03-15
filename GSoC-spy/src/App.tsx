@@ -106,7 +106,7 @@ function App() {
           </div>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/your-username/gsoc-spy"
+              href="https://github.com/JigyasuRajput/GSoC-spy"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
