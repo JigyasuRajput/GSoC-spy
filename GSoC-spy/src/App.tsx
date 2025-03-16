@@ -272,7 +272,7 @@ function App() {
                 htmlFor="repoUrl"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Repository URL
+                Repository URL or Path
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -283,7 +283,7 @@ function App() {
                 </div>
                 <input
                   id="repoUrl"
-                  type="url"
+                  type="text" // Changed from url to text to accept all formats
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
                   placeholder="github.com/owner/repo"

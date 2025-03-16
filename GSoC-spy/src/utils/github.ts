@@ -30,14 +30,51 @@ const MAINTAINER_CACHE_TTL = 60 * 60 * 1000; // 1 hour cache for maintainer stat
 
 export const parseGitHubUrl = (url: string): { owner: string; repo: string } | null => {
   try {
-    const urlObj = new URL(url);
-    if (urlObj.hostname !== 'github.com') return null;
+    // Clean and normalize the input
+    let normalizedUrl = url.trim();
     
-    const [, owner, repo] = urlObj.pathname.split('/');
-    if (!owner || !repo) return null;
+    // Remove trailing slashes, .git extension
+    normalizedUrl = normalizedUrl.replace(/\.git\/?$/, '').replace(/\/$/, '');
     
-    return { owner, repo: repo.replace('.git', '') };
-  } catch {
+    // Case 1: Simple "owner/repo" format
+    if (/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(normalizedUrl)) {
+      const [owner, repo] = normalizedUrl.split('/');
+      return { owner, repo };
+    }
+    
+    // Case 2: github.com/owner/repo (without protocol)
+    if (/^github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/.test(normalizedUrl)) {
+      const parts = normalizedUrl.split('/');
+      return { owner: parts[1], repo: parts[2] };
+    }
+    
+    // Case 3: Add protocol if needed for URL parsing
+    if (!normalizedUrl.startsWith('http')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    // Parse as URL
+    const urlObj = new URL(normalizedUrl);
+    
+    // Verify it's a GitHub URL
+    if (!urlObj.hostname.endsWith('github.com')) {
+      return null;
+    }
+    
+    // Extract path components
+    const pathParts = urlObj.pathname.split('/').filter(Boolean);
+    
+    // Need at least owner and repo
+    if (pathParts.length < 2) {
+      return null;
+    }
+    
+    return {
+      owner: pathParts[0],
+      repo: pathParts[1]
+    };
+  } catch (err) {
+    console.warn('Error parsing GitHub URL:', err, url);
     return null;
   }
 };
@@ -132,7 +169,17 @@ function createOctokit(): Octokit {
 
 export const fetchRepoStats = async (repoUrl: string, timeFilter: TimeFilter): Promise<RepoStats> => {
   const repoInfo = parseGitHubUrl(repoUrl);
-  if (!repoInfo) throw new Error('Invalid GitHub repository URL');
+  
+  if (!repoInfo) {
+    throw new Error(
+      'Invalid GitHub repository URL. Please use one of these formats:\n' +
+      '- owner/repo\n' +
+      '- github.com/owner/repo\n' +
+      '- https://github.com/owner/repo'
+    );
+  }
+
+  console.log(`Fetching stats for ${repoInfo.owner}/${repoInfo.repo}`);
 
   const cacheKey = `repo_${repoInfo.owner}_${repoInfo.repo}_${timeFilter}`;
   return getCachedOrFetch(cacheKey, async () => {
