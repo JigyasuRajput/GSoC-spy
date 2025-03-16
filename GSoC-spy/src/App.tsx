@@ -16,6 +16,10 @@ import {
   ChevronUp,
   Shield,
   Star, // Star icon for the button
+  KeyRound,
+  AlertCircle,
+  X,
+  Check,
 } from "lucide-react";
 import {
   fetchRepoStats,
@@ -28,6 +32,8 @@ import { UserStatsModal } from "./components/UserStatsModal";
 import Logo from "./components/Logo";
 import Footer from "./components/Footer";
 import PullRequestList from "./components/PullRequestList";
+import { TokenSettings } from "./components/TokenSettings";
+import { hasGitHubToken } from "./utils/env";
 
 function App() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -48,6 +54,9 @@ function App() {
     return true;
   });
   const [loadingProgress, setLoadingProgress] = useState("");
+  const [showTokenSettings, setShowTokenSettings] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+  const [showTokenNotification, setShowTokenNotification] = useState(false);
 
   useEffect(() => {
     // Register loading progress handler
@@ -55,7 +64,31 @@ function App() {
 
     document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
+
+    // Check for GitHub token
+    const hasExistingToken = hasGitHubToken();
+    setHasToken(hasExistingToken);
+
+    // Show notification for users without a token
+    const hasSeenNotification = localStorage.getItem("token_notification_seen");
+    if (!hasExistingToken && !hasSeenNotification) {
+      setShowTokenNotification(true);
+    }
   }, [darkMode]); // Note: this dependency is fine as registerLoadingHandler only needs to be called once
+
+  // Add an effect to update the token status when window gets focus
+  // This ensures the UI updates if the token is added in another tab
+  useEffect(() => {
+    const checkTokenOnFocus = () => {
+      const tokenExists = hasGitHubToken();
+      setHasToken(tokenExists);
+    };
+
+    window.addEventListener("focus", checkTokenOnFocus);
+    return () => {
+      window.removeEventListener("focus", checkTokenOnFocus);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,14 +133,95 @@ function App() {
     setShowPRs(!showPRs);
   };
 
+  const dismissTokenNotification = () => {
+    setShowTokenNotification(false);
+    localStorage.setItem("token_notification_seen", "true");
+  };
+
+  const openTokenSettings = () => {
+    setShowTokenSettings(true);
+    setShowTokenNotification(false);
+    localStorage.setItem("token_notification_seen", "true");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {showTokenNotification && (
+        <div className="fixed bottom-4 right-4 max-w-md z-50 animate-fadeIn">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <div className="p-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                  <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-medium text-gray-800 dark:text-white">
+                  Increase API Rate Limits
+                </h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Add your GitHub Personal Access Token to raise the API limit
+                  from 60 to 5,000 requests per hour.
+                </p>
+                <div className="mt-3 flex gap-3">
+                  <button
+                    onClick={openTokenSettings}
+                    className="text-sm px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                  >
+                    Add Token
+                  </button>
+                  <button
+                    onClick={dismissTokenNotification}
+                    className="text-sm px-3 py-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={dismissTokenNotification}
+                className="flex-shrink-0 text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Logo size="md" />
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowTokenSettings(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors duration-300 ${
+                hasToken
+                  ? "text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800"
+                  : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
+            >
+              {hasToken ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span className="text-sm font-medium hidden xs:inline">
+                    API Token Added
+                  </span>
+                  <span className="text-sm font-medium xs:hidden">Token</span>
+                </>
+              ) : (
+                <>
+                  <KeyRound className="w-4 h-4" />
+                  <span className="text-sm font-medium hidden xs:inline">
+                    Add API Token
+                  </span>
+                  <span className="text-sm font-medium xs:hidden">Token</span>
+                </>
+              )}
+            </button>
+
             <a
               href="https://github.com/JigyasuRajput/GSoC-spy"
               target="_blank"
@@ -431,6 +545,15 @@ function App() {
           </div>
         )}
       </main>
+
+      <TokenSettings
+        isOpen={showTokenSettings}
+        onClose={() => setShowTokenSettings(false)}
+        onTokenSaved={() => {
+          setHasToken(true);
+          setShowTokenNotification(false);
+        }}
+      />
 
       <Footer />
     </div>

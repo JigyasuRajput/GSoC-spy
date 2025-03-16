@@ -1,6 +1,7 @@
 import { Octokit } from 'octokit';
 import { subDays, parseISO, isAfter } from 'date-fns';
 import type { ContributorStats, PullRequest, RepoStats, UserStats, TimeFilter } from '../types';
+import { getGitHubToken } from './env';
 
 // Add simple in-memory cache
 const cache: Record<string, { data: any; timestamp: number }> = {};
@@ -120,13 +121,23 @@ async function getMaintainers(octokit: Octokit, owner: string, repo: string): Pr
   return repoMaintainersMap.get(key) as Promise<Set<string>>;
 }
 
+// Modified function to create Octokit instance with token if available
+function createOctokit(): Octokit {
+  const token = getGitHubToken();
+  if (token) {
+    return new Octokit({ auth: token });
+  }
+  return new Octokit();
+}
+
 export const fetchRepoStats = async (repoUrl: string, timeFilter: TimeFilter): Promise<RepoStats> => {
   const repoInfo = parseGitHubUrl(repoUrl);
   if (!repoInfo) throw new Error('Invalid GitHub repository URL');
 
   const cacheKey = `repo_${repoInfo.owner}_${repoInfo.repo}_${timeFilter}`;
   return getCachedOrFetch(cacheKey, async () => {
-    const octokit = new Octokit();
+    // Use our new createOctokit function to get an authenticated instance
+    const octokit = createOctokit();
     const filterDate = getTimeFilterDate(timeFilter);
     
     // Use optimized maintainer fetching
@@ -263,7 +274,8 @@ export const registerLoadingHandler = (handler: (message: string) => void) => {
 export const fetchUserStats = async (username: string, timeFilter: TimeFilter): Promise<UserStats> => {
   const cacheKey = `user_${username}_${timeFilter}`;
   return getCachedOrFetch(cacheKey, async () => {
-    const octokit = new Octokit();
+    // Use our new createOctokit function to get an authenticated instance
+    const octokit = createOctokit();
     const filterDate = getTimeFilterDate(timeFilter);
 
     setLoadingProgress?.(`Fetching user data for ${username}...`);
