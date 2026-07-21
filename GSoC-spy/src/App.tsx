@@ -251,7 +251,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex-grow">
+      <main className="w-full lg:w-auto mx-auto px-4 py-8 sm:px-6 lg:px-8 flex-grow">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 mb-3">
             GSoC Spy
